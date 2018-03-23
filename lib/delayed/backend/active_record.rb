@@ -38,7 +38,9 @@ module Delayed
         scope :by_priority, lambda { order("priority ASC, run_at ASC") }
         scope :min_priority, lambda { where("priority >= ?", Worker.min_priority) if Worker.min_priority }
         scope :max_priority, lambda { where("priority <= ?", Worker.max_priority) if Worker.max_priority }
-        scope :for_queues, lambda { |queues = Worker.queues| where(queue: queues) if Array(queues).any? }
+        scope :for_queues, lambda { |queues = (Worker.queues - Worker.try(:not_queues).to_a)| where(queue: queues) if Array(queues).any? }
+
+        scope :for_not_queues, lambda { |queues = ( Worker.try(:not_queues).to_a - Worker.queues)| where.not(queue: queues) if Array(queues).any? }
 
         before_save :set_default_run_at
 
@@ -77,6 +79,7 @@ module Delayed
             .min_priority
             .max_priority
             .for_queues
+            .for_not_queues
             .by_priority
 
           reserve_with_scope(ready_scope, worker, db_time_now)
