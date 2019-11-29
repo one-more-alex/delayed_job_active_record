@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "generators/delayed_job/delayed_job_generator"
 require "generators/delayed_job/next_migration_version"
 require "rails/generators/migration"
@@ -22,9 +24,7 @@ module DelayedJob
     private
 
     def migration_version
-      if ActiveRecord::VERSION::MAJOR >= 5
-        "[#{ActiveRecord::VERSION::MAJOR}.#{ActiveRecord::VERSION::MINOR}]"
-      end
+      "[#{ActiveRecord::VERSION::MAJOR}.#{ActiveRecord::VERSION::MINOR}]" if ActiveRecord::VERSION::MAJOR >= 5
     end
   end
 end
